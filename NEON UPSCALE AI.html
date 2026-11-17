@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NEON UPSCALE AI</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.383.0/dist/umd/lucide.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#050505;--panel:rgba(255,255,255,.045);--line:rgba(255,255,255,.1);--tx:#f2f4ff;--mu:#9aa0c0;--blue:#3b82ff;--pur:#9d4dff;--cy:#22e5ff;--mag:#ff3df0;
+--grad:linear-gradient(110deg,var(--blue),var(--pur) 50%,var(--mag));
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 72px);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Inter,system-ui,sans-serif;overflow-x:hidden;
+background-image:radial-gradient(60% 40% at 15% 0%,rgba(59,130,255,.18),transparent),radial-gradient(50% 40% at 90% 10%,rgba(157,77,255,.18),transparent),radial-gradient(50% 30% at 50% 100%,rgba(255,61,240,.1),transparent)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:rgba(5,5,5,.85);backdrop-filter:blur(14px)}
+.fx{font-family:Orbitron,Inter,sans-serif;letter-spacing:.04em}
+.grad-t{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.glass{background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(16px);border-radius:22px}
+.glow{box-shadow:0 0 0 1px rgba(157,77,255,.35),0 0 32px rgba(59,130,255,.2),inset 0 0 40px rgba(157,77,255,.05)}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:rgba(5,5,5,.72);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.85rem 1.3rem;border-radius:14px;font:700 .8rem Orbitron,Inter,sans-serif;letter-spacing:.08em;color:#fff;border:1px solid transparent;cursor:pointer;transition:transform .2s,box-shadow .25s,filter .2s;background:var(--grad);box-shadow:0 0 18px rgba(157,77,255,.45)}
+.btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 0 34px rgba(59,130,255,.8),0 0 60px rgba(255,61,240,.4);filter:brightness(1.12)}
+.btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+.btn.ghost{background:rgba(255,255,255,.04);border-color:rgba(34,229,255,.5);box-shadow:0 0 14px rgba(34,229,255,.2)}
+.btn.ghost:hover:not(:disabled){box-shadow:0 0 28px rgba(34,229,255,.65)}
+.drop{border:2px dashed rgba(34,229,255,.5);border-radius:24px;transition:.3s;animation:pulse 3.5s ease-in-out infinite}
+.drop.over{border-color:var(--mag);background:rgba(255,61,240,.08);transform:scale(1.01)}
+@keyframes pulse{0%,100%{box-shadow:0 0 22px rgba(59,130,255,.25)}50%{box-shadow:0 0 48px rgba(157,77,255,.5)}}
+.card{cursor:pointer;transition:.3s;border:1px solid var(--line);border-radius:20px;padding:1.4rem;background:var(--panel);text-align:left;color:inherit;width:100%}
+.card:hover{transform:translateY(-4px);border-color:var(--cy)}
+.card.sel{border-color:var(--pur);box-shadow:0 0 0 1px var(--pur),0 0 40px rgba(157,77,255,.55);background:rgba(157,77,255,.1)}
+.cmp{position:relative;overflow:hidden;border-radius:18px;touch-action:none;user-select:none;background:#000;cursor:ew-resize;--p:50}
+.cmp img{display:block;width:100%;height:auto;max-height:70vh;object-fit:contain;margin:auto;pointer-events:none}
+.cmp .top{position:absolute;inset:0}
+.cmp .top img{height:100%}
+.cmp .bar{position:absolute;top:0;bottom:0;left:calc(var(--p)*1%);width:3px;margin-left:-1.5px;background:var(--cy);box-shadow:0 0 18px var(--cy)}
+.cmp .knob{position:absolute;top:50%;left:50%;width:44px;height:44px;margin:-22px;border-radius:50%;background:#0b0b14;border:2px solid var(--cy);display:grid;place-items:center;box-shadow:0 0 22px var(--cy)}
+.tag{position:absolute;top:10px;padding:.25rem .6rem;border-radius:8px;font:600 .68rem Orbitron,sans-serif;background:rgba(0,0,0,.65);border:1px solid var(--line)}
+.rev{opacity:0;transform:translateY(24px);transition:.8s cubic-bezier(.2,.7,.2,1)}.rev.in{opacity:1;transform:none}
+.ring{width:84px;height:84px;border-radius:50%;border:3px solid transparent;border-top-color:var(--cy);border-right-color:var(--mag);animation:sp 1s linear infinite;box-shadow:0 0 30px rgba(59,130,255,.5)}
+@keyframes sp{to{transform:rotate(360deg)}}
+.pbar{height:8px;border-radius:9px;background:rgba(255,255,255,.08);overflow:hidden}.pbar i{display:block;height:100%;width:0;background:var(--grad);box-shadow:0 0 14px var(--pur);transition:width .2s}
+#toasts{position:fixed;right:14px;left:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:80;display:grid;gap:8px;justify-items:end;pointer-events:none}
+.toast{pointer-events:auto;max-width:420px;padding:.8rem 1rem;border-radius:14px;background:#14081f;border:1px solid var(--mag);box-shadow:0 0 24px rgba(255,61,240,.4);font-size:.9rem}
+.toast.ok{border-color:var(--cy);box-shadow:0 0 24px rgba(34,229,255,.35)}
+.seg button{padding:.45rem .9rem;border-radius:10px;font:600 .75rem Orbitron,sans-serif;color:var(--mu);border:1px solid var(--line);background:none;cursor:pointer}
+.seg button.on{color:#fff;border-color:var(--cy);box-shadow:0 0 14px rgba(34,229,255,.5)}
+.stat{padding:.8rem 1rem;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.stat b{display:block;font:700 .95rem Orbitron,sans-serif;margin-top:2px}.stat span{font-size:.72rem;color:var(--mu)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<nav>
+ <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+  <a href="#top" class="flex items-center gap-2 fx font-black text-lg"><i data-lucide="zap" class="text-cyan-300"></i><span class="grad-t">NEON UPSCALE AI</span></a>
+  <div class="hidden md:flex gap-7 text-sm text-[color:var(--mu)]"><a href="#workspace" class="hover:text-white">Workspace</a><a href="#compare" class="hover:text-white">Compare</a><a href="#download" class="hover:text-white">Download</a><a href="#features" class="hover:text-white">Features</a></div>
+  <button class="btn !py-2 !px-4" onclick="pick()"><i data-lucide="upload" class="w-4 h-4"></i><span class="hidden sm:inline">UPLOAD</span></button>
+ </div>
+</nav>
+
+<main id="top">
+<section class="max-w-6xl mx-auto px-4 pt-14 pb-8 text-center">
+ <p class="fx text-xs text-cyan-300 mb-4">AI IMAGE ENHANCEMENT · 2X / 4X</p>
+ <h1 class="fx font-black text-4xl sm:text-6xl lg:text-7xl leading-tight">BRING YOUR IMAGES <span class="grad-t">BACK TO LIFE.</span></h1>
+ <p class="mt-5 max-w-2xl mx-auto text-[color:var(--mu)] text-lg">Enhance image quality, sharpen details and upscale your images with AI-powered technology.</p>
+
+ <div id="workspace" class="mt-10 glass glow p-4 sm:p-6 text-left">
+  <div id="drop" class="drop p-8 sm:p-12 text-center" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="onDrop(event)">
+   <div id="emptyUp">
+    <i data-lucide="image-up" class="w-14 h-14 mx-auto text-cyan-300"></i>
+    <p class="fx font-bold text-xl mt-4">DRAG &amp; DROP YOUR IMAGE</p>
+    <p class="text-[color:var(--mu)] text-sm mt-1">JPG, JPEG, PNG or WEBP · up to 25 MB</p>
+    <button class="btn mt-6" onclick="pick()"><i data-lucide="folder-open" class="w-4 h-4"></i>BROWSE FILES</button>
+   </div>
+   <div id="prevWrap" class="hidden">
+    <img id="prev" alt="Uploaded image preview" class="mx-auto max-h-[46vh] rounded-xl border border-white/10 shadow-[0_0_40px_rgba(59,130,255,.3)]">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 text-left" id="info"></div>
+    <button class="mt-4 text-sm text-cyan-300 underline" onclick="pick()">Upload another image</button>
+   </div>
+   <input id="file" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" class="hidden">
+  </div>
+
+  <div class="grid sm:grid-cols-2 gap-4 mt-6">
+   <button class="card sel" id="c2" onclick="setF(2)"><div class="flex justify-between items-center"><span class="fx font-black text-4xl grad-t">2X</span><i data-lucide="maximize-2" class="text-cyan-300"></i></div><p class="fx font-bold mt-2">2X UPSCALE</p><p class="text-sm text-[color:var(--mu)] mt-1">Doubles the resolution. 1000 × 1000 becomes 2000 × 2000.</p></button>
+   <button class="card" id="c4" onclick="setF(4)"><div class="flex justify-between items-center"><span class="fx font-black text-4xl grad-t">4X</span><i data-lucide="maximize" class="text-fuchsia-400"></i></div><p class="fx font-bold mt-2">4X UPSCALE</p><p class="text-sm text-[color:var(--mu)] mt-1">Quadruples the resolution. 1000 × 1000 becomes 4000 × 4000.</p></button>
+  </div>
+
+  <div class="flex flex-wrap gap-3 mt-6">
+   <button class="btn" onclick="pick()"><i data-lucide="upload" class="w-4 h-4"></i>UPLOAD IMAGE</button>
+   <button class="btn" id="b2" onclick="run(2)" disabled><i data-lucide="sparkles" class="w-4 h-4"></i>UPSCALE 2X</button>
+   <button class="btn" id="b4" onclick="run(4)" disabled><i data-lucide="sparkles" class="w-4 h-4"></i>UPSCALE 4X</button>
+   <button class="btn ghost" id="bc" onclick="goto('compare')" disabled><i data-lucide="columns-2" class="w-4 h-4"></i>COMPARE IMAGES</button>
+   <button class="btn ghost" id="bd" onclick="goto('download')" disabled><i data-lucide="download" class="w-4 h-4"></i>DOWNLOAD HD IMAGE</button>
+   <button class="btn ghost" onclick="reset()"><i data-lucide="rotate-ccw" class="w-4 h-4"></i>RESET</button>
+  </div>
+ </div>
+</section>
+
+<section id="compare" class="max-w-6xl mx-auto px-4 py-10 rev">
+ <h2 class="fx font-black text-2xl sm:text-4xl mb-2">BEFORE <span class="grad-t">&amp; AFTER</span></h2>
+ <p class="text-[color:var(--mu)] mb-5">Drag the slider to reveal the enhanced image.</p>
+ <div class="glass glow p-3 sm:p-5">
+  <div id="cmpEmpty" class="py-16 text-center text-[color:var(--mu)]"><i data-lucide="scan-eye" class="w-10 h-10 mx-auto mb-3 text-purple-400"></i>Upscale an image to unlock the comparison slider.</div>
+  <div id="cmpBox" class="hidden">
+   <div class="cmp" id="cmp" tabindex="0" aria-label="Comparison slider">
+    <img id="imgA" alt="Enhanced image">
+    <div class="top" id="topClip"><img id="imgB" alt="Original image"></div>
+    <span class="tag left-3">ORIGINAL</span><span class="tag right-3" style="color:var(--cy)">ENHANCED</span>
+    <div class="bar"><div class="knob"><i data-lucide="move-horizontal" class="w-5 h-5 text-cyan-300"></i></div></div>
+   </div>
+   <div class="grid grid-cols-3 gap-3 mt-4" id="cmpStats"></div>
+  </div>
+ </div>
+</section>
+
+<section id="download" class="max-w-6xl mx-auto px-4 py-10 rev">
+ <h2 class="fx font-black text-2xl sm:text-4xl mb-5">DOWNLOAD <span class="grad-t">HD IMAGE</span></h2>
+ <div class="glass glow p-5 sm:p-8 flex flex-wrap items-center gap-6 justify-between">
+  <div><p class="text-[color:var(--mu)] text-sm mb-2">Export format</p>
+   <div class="seg flex gap-2"><button id="fPNG" class="on" onclick="setFmt('png')">PNG · LOSSLESS</button><button id="fJPG" onclick="setFmt('jpg')">JPG · 98%</button></div>
+   <p id="dlInfo" class="mt-4 text-sm text-[color:var(--mu)]">No enhanced image yet.</p></div>
+  <div class="flex gap-3 flex-wrap"><button class="btn" id="dl" onclick="download()" disabled><i data-lucide="download" class="w-4 h-4"></i>DOWNLOAD HD IMAGE</button><button class="btn ghost" onclick="reset();goto('workspace')"><i data-lucide="image-plus" class="w-4 h-4"></i>UPLOAD ANOTHER</button></div>
+ </div>
+</section>
+
+<section id="features" class="max-w-6xl mx-auto px-4 py-10">
+ <h2 class="fx font-black text-2xl sm:text-4xl mb-6 rev">BUILT FOR <span class="grad-t">DETAIL</span></h2>
+ <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" id="feat"></div>
+</section>
+</main>
+
+<footer class="border-t border-white/10 mt-10 py-8 text-center text-sm text-[color:var(--mu)]">
+ <p class="fx font-bold grad-t mb-1">NEON UPSCALE AI</p>
+ <p>Your images are processed on your device and never uploaded. © 2026 Neon Upscale AI.</p>
+</footer>
+
+<div id="busy" class="hidden fixed inset-0 z-[70] bg-black/80 backdrop-blur-md grid place-items-center p-6">
+ <div class="text-center w-full max-w-sm"><div class="ring mx-auto"></div>
+  <p class="fx font-bold text-lg mt-6 grad-t">ENHANCING YOUR IMAGE...</p>
+  <p id="stage" class="text-sm text-[color:var(--mu)] mt-1">Preparing</p>
+  <div class="pbar mt-5"><i id="pb"></i></div><p id="pct" class="fx text-xs mt-2 text-cyan-300">0%</p></div>
+</div>
+<div id="toasts"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const S={file:null,url:null,w:0,h:0,f:2,res:null,fmt:'png',busy:false};
+const MAXIN=25*1024*1024, OK=['image/jpeg','image/png','image/webp'];
+const MAXPX=matchMedia('(pointer:coarse)').matches?16777216:48000000;
+const fmtB=n=>n>1048576?(n/1048576).toFixed(2)+' MB':Math.max(1,Math.round(n/1024))+' KB';
+const tick=()=>new Promise(r=>setTimeout(r,0));
+function toast(m,ok){const t=document.createElement('div');t.className='toast'+(ok?' ok':'');t.textContent=m;$('toasts').appendChild(t);setTimeout(()=>t.remove(),5500)}
+function icons(){try{lucide.createIcons()}catch(e){}}
+function goto(id){$(id).scrollIntoView({behavior:'smooth'})}
+function pick(){$('file').value='';$('file').click()}
+$('file').onchange=e=>e.target.files[0]&&load(e.target.files[0]);
+function onDrop(e){e.preventDefault();$('drop').classList.remove('over');const f=e.dataTransfer.files[0];f&&load(f)}
+
+function setF(f){S.f=f;$('c2').classList.toggle('sel',f===2);$('c4').classList.toggle('sel',f===4)}
+function setFmt(f){S.fmt=f;$('fPNG').classList.toggle('on',f==='png');$('fJPG').classList.toggle('on',f==='jpg');dlInfo()}
+
+async function load(file){
+  const ext=(file.name.split('.').pop()||'').toLowerCase();
+  if(!OK.includes(file.type)&&!['jpg','jpeg','png','webp'].includes(ext)) return toast('Unsupported file. Please choose a JPG, JPEG, PNG or WEBP image.');
+  if(OK.length&&file.type&&!OK.includes(file.type)) return toast('Unsupported file type: '+file.type);
+  if(file.size>MAXIN) return toast('File is too large ('+fmtB(file.size)+'). Maximum size is 25 MB.');
+  if(!file.size) return toast('That file is empty.');
+  const url=URL.createObjectURL(file);
+  const im=new Image();
+  try{await new Promise((ok,no)=>{im.onload=ok;im.onerror=no;im.src=url})}catch(e){URL.revokeObjectURL(url);return toast('This image could not be read. It may be corrupted.')}
+  if(im.naturalWidth<8||im.naturalHeight<8){URL.revokeObjectURL(url);return toast('Image is too small to enhance.')}
+  if(S.url)URL.revokeObjectURL(S.url);
+  clearResult();
+  Object.assign(S,{file,url,w:im.naturalWidth,h:im.naturalHeight});
+  $('prev').src=url;$('emptyUp').classList.add('hidden');$('prevWrap').classList.remove('hidden');
+  $('info').innerHTML=[['File',file.name.length>18?file.name.slice(0,15)+'…':file.name],['Resolution',S.w+' × '+S.h],['Size',fmtB(file.size)],['Format',(file.type||ext).replace('image/','').toUpperCase()]].map(([a,b])=>`<div class="stat"><span>${a}</span><b>${b}</b></div>`).join('');
+  $('b2').disabled=$('b4').disabled=false;
+  toast('Image loaded. Choose 2X or 4X.',true);
+}
+
+function clearResult(){S.res=null;['bc','bd','dl'].forEach(i=>$(i).disabled=true);$('cmpBox').classList.add('hidden');$('cmpEmpty').classList.remove('hidden');dlInfo()}
+function reset(){if(S.busy)return;if(S.url)URL.revokeObjectURL(S.url);if(S.res&&S.res.url)URL.revokeObjectURL(S.res.url);
+  Object.assign(S,{file:null,url:null,w:0,h:0,res:null});clearResult();$('prev').removeAttribute('src');$('prevWrap').classList.add('hidden');$('emptyUp').classList.remove('hidden');$('b2').disabled=$('b4').disabled=true;setF(2);$('file').value='';goto('top')}
+
+/* ---------- image processing engine ---------- */
+function lanczosW(dn,sn){const idx=new Int32Array(dn*6),w=new Float32Array(dn*6),r=sn/dn;
+  const L=x=>{if(x===0)return 1;if(x<=-3||x>=3)return 0;const p=Math.PI*x;return 3*Math.sin(p)*Math.sin(p/3)/(p*p)};
+  for(let d=0;d<dn;d++){const c=(d+.5)*r-.5,l=Math.floor(c)-2;let s=0;
+    for(let k=0;k<6;k++){const wt=L(c-(l+k));w[d*6+k]=wt;s+=wt;idx[d*6+k]=Math.min(sn-1,Math.max(0,l+k))}
+    for(let k=0;k<6;k++)w[d*6+k]/=s}
+  return{idx,w}}
+
+async function resample(src,sw,sh,dw,dh,prog){
+  const hx=lanczosW(dw,sw),vy=lanczosW(dh,sh);
+  const tmp=new Uint8ClampedArray(dw*sh*4),out=new Uint8ClampedArray(dw*dh*4);
+  for(let y=0;y<sh;y++){const ro=y*sw*4,to=y*dw*4;
+    for(let x=0;x<dw;x++){let r=0,g=0,b=0,a=0;
+      for(let k=0;k<6;k++){const wt=hx.w[x*6+k],o=ro+hx.idx[x*6+k]*4;r+=src[o]*wt;g+=src[o+1]*wt;b+=src[o+2]*wt;a+=src[o+3]*wt}
+      const t=to+x*4;tmp[t]=r;tmp[t+1]=g;tmp[t+2]=b;tmp[t+3]=a}
+    if(y%48===47){prog(.4*y/sh);await tick()}}
+  const rl=dw*4;
+  for(let y=0;y<dh;y++){const o=y*rl,i0=vy.idx[y*6]*rl,i1=vy.idx[y*6+1]*rl,i2=vy.idx[y*6+2]*rl,i3=vy.idx[y*6+3]*rl,i4=vy.idx[y*6+4]*rl,i5=vy.idx[y*6+5]*rl,
+      w0=vy.w[y*6],w1=vy.w[y*6+1],w2=vy.w[y*6+2],w3=vy.w[y*6+3],w4=vy.w[y*6+4],w5=vy.w[y*6+5];
+    for(let x=0;x<rl;x++)out[o+x]=tmp[i0+x]*w0+tmp[i1+x]*w1+tmp[i2+x]*w2+tmp[i3+x]*w3+tmp[i4+x]*w4+tmp[i5+x]*w5;
+    if(y%48===47){prog(.4+.6*y/dh);await tick()}}
+  return out}
+
+/* gentle edge-preserving denoise (3x3 bilateral-style): smooths flat noise, keeps edges and faces */
+async function denoise(d,w,h,prog){const s=new Uint8ClampedArray(d);
+  for(let y=0;y<h;y++){for(let x=0;x<w;x++){const c=(y*w+x)*4;let r=s[c],g=s[c+1],b=s[c+2],sw=1,R=r,G=g,B=b;
+    for(let j=-1;j<=1;j++){const yy=y+j;if(yy<0||yy>=h)continue;
+      for(let i=-1;i<=1;i++){if(!i&&!j)continue;const xx=x+i;if(xx<0||xx>=w)continue;const n=(yy*w+xx)*4;
+        const df=Math.max(Math.abs(s[n]-r),Math.abs(s[n+1]-g),Math.abs(s[n+2]-b)),wt=1-df/36;
+        if(wt>0){sw+=wt;R+=s[n]*wt;G+=s[n+1]*wt;B+=s[n+2]*wt}}}
+    d[c]=R/sw;d[c+1]=G/sw;d[c+2]=B/sw}
+    if(y%64===63){prog(y/h);await tick()}}}
+
+/* luminance-only unsharp mask: sharpens detail without shifting colours; limited to avoid halos on faces */
+function lum(row,w,o){for(let x=0,p=0;x<w;x++,p+=4)o[x]=.299*row[p]+.587*row[p+1]+.114*row[p+2]}
+async function sharpen(d,w,h,amt,thr,lim,prog){const rl=w*4;
+  let cur=d.slice(0,rl),prev=cur,next;let lp=new Float32Array(w),lc=new Float32Array(w),ln=new Float32Array(w);lum(cur,w,lc);lp.set(lc);
+  for(let y=0;y<h;y++){next=y<h-1?d.slice((y+1)*rl,(y+2)*rl):cur;if(y<h-1)lum(next,w,ln);else ln.set(lc);
+    const o=y*rl;
+    for(let x=0;x<w;x++){const xl=x>0?x-1:0,xr=x<w-1?x+1:x;
+      const bl=(lp[xl]+lp[x]+lp[xr]+lc[xl]+lc[x]+lc[xr]+ln[xl]+ln[x]+ln[xr])/9;
+      let dl=(lc[x]-bl)*amt;const a=Math.abs(dl);
+      if(a<thr)dl=0;else dl=Math.sign(dl)*Math.min(a,lim);
+      const p=o+x*4;d[p]+=dl;d[p+1]+=dl;d[p+2]+=dl}
+    const t=lp;lp=lc;lc=ln;ln=t;prev=cur;cur=next;
+    if(y%64===63){prog(y/h);await tick()}}}
+
+async function run(req){
+  if(S.busy||!S.file)return;
+  let f=req;while(f>=2&&S.w*S.h*f*f>MAXPX)f=f===4?2:0;
+  if(!f)return toast('This image is too large to upscale on this device. Try an image under '+Math.floor(Math.sqrt(MAXPX/4))+' px per side.');
+  if(f!==req)toast('Output limit reached. Using '+f+'X instead of '+req+'X for this image.');
+  setF(f);S.busy=true;$('busy').classList.remove('hidden');
+  const set=(t,p)=>{$('stage').textContent=t;const v=Math.round(p*100);$('pb').style.width=v+'%';$('pct').textContent=v+'%'};
+  try{
+    set('Reading pixels',.02);await tick();
+    const im=new Image();im.src=S.url;await im.decode();
+    const c0=document.createElement('canvas');c0.width=S.w;c0.height=S.h;const x0=c0.getContext('2d',{willReadFrequently:true});x0.drawImage(im,0,0);
+    let data=x0.getImageData(0,0,S.w,S.h).data,cw=S.w,ch=S.h;
+    const passes=f===4?[2,2]:[2],total=passes.length+2;let done=0;
+    await denoise(data,cw,ch,p=>set('Reducing noise',(done+p)/total*.95+.03));done++;
+    for(let i=0;i<passes.length;i++){const nw=cw*2,nh=ch*2;
+      data=await resample(data,cw,ch,nw,nh,p=>set('Upscaling · pass '+(i+1)+' of '+passes.length,(done+p)/total*.95+.03));cw=nw;ch=nh;done++}
+    await sharpen(data,cw,ch,.75,3,46,p=>set('Restoring fine detail',(done+p)/total*.95+.03));
+    set('Finalising',.97);await tick();
+    const c=document.createElement('canvas');c.width=cw;c.height=ch;c.getContext('2d').putImageData(new ImageData(data,cw,ch),0,0);
+    const blob=await new Promise(r=>c.toBlob(r,'image/png'));
+    if(!blob)throw new Error('Could not encode the enhanced image.');
+    if(S.res&&S.res.url)URL.revokeObjectURL(S.res.url);
+    S.res={canvas:c,url:URL.createObjectURL(blob),w:cw,h:ch,f,pngSize:blob.size,cache:{png:blob}};
+    showResult();set('Done',1);
+  }catch(e){console.error(e);toast('Processing failed: '+(e&&e.message?e.message:'the browser ran out of memory. Try a smaller image or 2X.'))}
+  finally{S.busy=false;$('busy').classList.add('hidden')}
+}
+
+function showResult(){const r=S.res;
+  $('imgA').src=r.url;$('imgB').src=S.url;$('cmpEmpty').classList.add('hidden');$('cmpBox').classList.remove('hidden');
+  $('cmpStats').innerHTML=[['Original',S.w+' × '+S.h],['Enhanced',r.w+' × '+r.h],['Upscale',r.f+'X']].map(([a,b])=>`<div class="stat text-center"><span>${a}</span><b>${b}</b></div>`).join('');
+  setP(50);['bc','bd','dl'].forEach(i=>$(i).disabled=false);dlInfo();icons();
+  toast('Enhancement complete.',true);setTimeout(()=>goto('compare'),300)}
+
+function dlInfo(){const r=S.res;$('dlInfo').textContent=r?`${r.w} × ${r.h} px · ${r.f}X upscale · ${S.fmt.toUpperCase()}${S.fmt==='png'?' (≈ '+fmtB(r.pngSize)+')':''}`:'No enhanced image yet.'}
+
+async function getBlob(fmt){const r=S.res;if(r.cache[fmt])return r.cache[fmt];
+  const b=await new Promise(ok=>r.canvas.toBlob(ok,fmt==='png'?'image/png':'image/jpeg',.98));r.cache[fmt]=b;return b}
+async function download(){
+  if(!S.res)return;const fmt=S.fmt;
+  try{const blob=await getBlob(fmt);if(!blob)throw new Error('Export failed.');
+    const base=S.file.name.replace(/\.[^.]+$/,'').replace(/[^\w-]+/g,'_').slice(0,60)||'image';
+    const name=`${base}_neon-${S.res.f}x.${fmt}`;
+    let dls=null;try{dls=await claude.use('downloads')}catch(e){}
+    if(dls){try{await dls.save({filename:name,data:blob});toast('Download ready: '+name,true)}catch(e){if(e&&e.code==='declined')return;throw new Error(e&&e.code==='too_large'?'File too large to save here. Try JPG.':'Saving was not possible here.')}}
+    else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();toast('Download started: '+name,true)}
+  }catch(e){toast(e.message||'Download failed.')}}
+
+/* ---------- comparison slider ---------- */
+function setP(p){p=Math.max(0,Math.min(100,p));S.p=p;$('cmp').style.setProperty('--p',p);$('topClip').style.clipPath=`inset(0 ${100-p}% 0 0)`}
+(function(){const el=$('cmp');let on=false;const mv=e=>{const b=el.getBoundingClientRect();setP((e.clientX-b.left)/b.width*100)};
+  el.addEventListener('pointerdown',e=>{on=true;el.setPointerCapture(e.pointerId);mv(e)});
+  el.addEventListener('pointermove',e=>on&&mv(e));el.addEventListener('pointerup',()=>on=false);el.addEventListener('pointercancel',()=>on=false);
+  el.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')setP(S.p-4);if(e.key==='ArrowRight')setP(S.p+4)})})();
+
+/* ---------- features + reveal ---------- */
+const F=[['maximize','Real 2X & 4X resolution','Pixel dimensions are multiplied exactly, with multi-pass Lanczos resampling for 4X.'],['scan-line','Detail restoration','Luminance-only sharpening brings back edges and texture without halos.'],['waves','Noise reduction','Edge-preserving smoothing cleans grain and compression artefacts.'],['palette','True colours','Sharpening acts on brightness only, so colours and composition stay intact.'],['smile','Face-safe tuning','Limited, gentle enhancement avoids over-processed skin and facial features.'],['shield-check','Private by design','Everything runs on your device. Your photos are never uploaded.']];
+$('feat').innerHTML=F.map(([i,t,d])=>`<div class="glass p-5 rev hover:-translate-y-1 transition hover:border-cyan-300/50"><i data-lucide="${i}" class="w-8 h-8 text-purple-400 mb-3"></i><h3 class="fx font-bold mb-1">${t}</h3><p class="text-sm text-[color:var(--mu)]">${d}</p></div>`).join('');
+const io=new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting&&(e.target.classList.add('in'),io.unobserve(e.target))),{threshold:.1});
+document.querySelectorAll('.rev').forEach(el=>io.observe(el));
+setP(50);icons();
+</script>
+</body>
+</html>
+ 
